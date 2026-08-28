@@ -1,214 +1,544 @@
+<!--
+  Rui Santos
+  Complete project details at https://RandomNerdTutorials.com/esp32-web-bluetooth/
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
 <!DOCTYPE html>
 <html>
-<head>
-    <title>ESP32 Web BLE App</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="favicon.ico">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <meta charset="UTF-8">
-</head>
-<body>
-    <div class="topnav">
-        <h1>ESP32 Web BLE Application</h1>
-    </div>
-    <div class="content">
-        <div class="card-grid">
-            <div class="card">
-                <p>
-                    <button id="connectBleButton" class="connectButton"> Connect to BLE Device</button>
-                    <button id="disconnectBleButton" class="disconnectButton"> Disconnect BLE Device</button>
-                </p>
-                <p class="gray-label">BLE state: <strong><span id="bleState" style="color:#d13a30;">Disconnected</span></strong></p>
-            </div>
+    <head>
+        <title>BLE Thermometer</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="icon.png">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <div class="topnav">
+            <h1>BLE Thermometer</h1>
         </div>
-        <div class="card-grid">   
-            <div class="card">
-                <h2>Fetched Value</h2>
-                <p class="reading"><span id="valueContainer">NaN</span></p>
-                <p class="gray-label">Last reading: <span id="timestamp"></span></p>
+        <div class="content">
+            <div class="card-grid">
+                <div class="card">
+                    <p>
+                        <button id="btnConnect" class="connectButton"         > Connect to BLE Peripheral</button>
+                        <button id="btnDisConn" class="disconnButton" disabled> Disconnect BLE Peripheral</button>
+                    </p>
+                    <p class="gray-label">BLE state: <strong><span id="lblBleState" style="color:#d13a30;">Disconnected</span></strong></p>
+                </div>
             </div>
-
-            <div class="card">
-                <h2>Control GPIO 2</h2>
-                <button id="onButton" class="onButton">ON</button>
-                <button id="offButton" class="offButton">OFF</button>
-                <p class="gray-label">Last value sent: <span id="valueSent"></span></p>
+            <div class="card-grid">
+                <div class="card">
+                    <h2>Ambient</h2>
+                    <p class="text-box"><strong><span id="tbxAmbT">--.- ℃</span></strong></p>
+                    <p class="gray-label"><span id="lblAmbT"></span></p>
+                </div>
+                <div class="card">
+                    <h2>Sensor</h2>
+                    <p class="text-box"><strong><span id="tbxSplyU">-.-- V</span></strong></p>
+                    <p class="gray-label"><span id="lblMcuT"></span></p>
+                </div>
+                <div class="card">
+                    <h2>Battery</h2>
+                    <p class="text-box"><strong><span id="tbxBattP">--.- %</span></strong></p>
+                    <p class="gray-label"><span id="lblBattU"></span></p>
+                </div>
             </div>
+            <p class="gray-label">Recv /  Total:
+                <strong><span id="lblFrameRxCnt" style="color:#77ac30;">0</span></strong> / <strong><span id="lblTotalRxCnt">0</span></strong>
+               (<strong><span id="lblByteRate" style="color:#77ac30;">-.-- KB/s</span></strong>), Lost:
+                <strong><span id="lblCrcErrCnt" style="color:#d13a30;">0</span></strong>
+               (<strong><span id="lblLostRate" style="color:#d13a30;">-.--%</span></strong>)
+            </p>
+            <canvas id="Chart" style="width:80%;max-width:device-width"></canvas>
+            <p class="gray-label">Last received: <span id="lblTimestamp"></span></p>
         </div>
-    </div>
-    <div class="footer">
-        <p><a href="https://randomnerdtutorials.com/">Created by RandomNerdTutorials.com</a></p>
-        <p><a href="https://RandomNerdTutorials.com/esp32-web-bluetooth/">Read the full project here.</a></p>
-    </div>
-</body>
-<script>
-    // DOM Elements
-    const connectButton = document.getElementById('connectBleButton');
-    const disconnectButton = document.getElementById('disconnectBleButton');
-    const onButton = document.getElementById('onButton');
-    const offButton = document.getElementById('offButton');
-    const retrievedValue = document.getElementById('valueContainer');
-    const latestValueSent = document.getElementById('valueSent');
-    const bleStateContainer = document.getElementById('bleState');
-    const timestampContainer = document.getElementById('timestamp');
+        <div class="footer">
+            <p><a href="https://googlechrome.github.io/samples/web-bluetooth/">Web Bluetooth Samples</a></p>
+            <p>Refer to <a href="https://RandomNerdTutorials.com/esp32-web-bluetooth/">Full Tutorials</a> created by <a href="https://randomnerdtutorials.com/">RandomNerdTutorials</a></p>
+            <p><a href="https://www.chartjs.org">Chart.js</a> (<a href="https://github.com/chartjs/Chart.js/releases/">GitHub</a>, MIT licensed) built files are available on <a href="https://cdnjs.com/libraries/Chart.js">CDNJS</a></p>
+        </div>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/chart.js"></script>-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.js"></script>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    </body>
+    <script>
+        // =============================================================================================================
+        //  DOM Elements
+        // =============================================================================================================
+        const btnConnect                = document.getElementById('btnConnect');
+        const btnDisConn                = document.getElementById('btnDisConn');
+        const lblAmbT                   = document.getElementById('lblAmbT');
+        const lblBattU                  = document.getElementById('lblBattU');
+        const lblBleState               = document.getElementById('lblBleState');
+        const lblByteRate               = document.getElementById('lblByteRate');
+        const lblCrcErrCnt              = document.getElementById('lblCrcErrCnt');
+        const lblFrameRxCnt             = document.getElementById('lblFrameRxCnt');
+        const lblLostRate               = document.getElementById('lblLostRate');
+        const lblMcuT                   = document.getElementById('lblMcuT');
+        const lblTimestamp              = document.getElementById('lblTimestamp');
+        const lblTotalRxCnt             = document.getElementById('lblTotalRxCnt');
+        const tbxAmbT                   = document.getElementById('tbxAmbT');
+        const tbxBattP                  = document.getElementById('tbxBattP');
+        const tbxSplyU                  = document.getElementById('tbxSplyU');
 
-    //Define BLE Device Specs
-    var deviceName ='ESP32';
-    var bleService = '19b10000-e8f2-537e-4f6c-d104768a1214';
-    var ledCharacteristic = '19b10002-e8f2-537e-4f6c-d104768a1214';
-    var sensorCharacteristic= '19b10001-e8f2-537e-4f6c-d104768a1214';
+        // =============================================================================================================
+        //  Configuration of Chart.js
+        // =============================================================================================================
+        const xValues = [];
+        const yValues = [];
+        const chartData =
+        {
+            labels                      : xValues,
+            datasets                    :
+            [{
+                borderColor             : "rgba(27,138,148, 0.5)",
+                cubicInterpolationMode  : 'monotone',
+                data                    : yValues,
+                fill                    : false,
+                lineTension             : 0.4,
+                pointRadius             : 1
+            }]
+        };
 
-    //Global Variables to Handle Bluetooth
-    var bleServer;
-    var bleServiceFound;
-    var sensorCharacteristicFound;
-
-    // Connect Button (search for BLE Devices only if BLE is available)
-    connectButton.addEventListener('click', (event) => {
-        if (isWebBluetoothEnabled()){
-            connectToDevice();
-        }
-    });
-
-    // Disconnect Button
-    disconnectButton.addEventListener('click', disconnectDevice);
-
-    // Write to the ESP32 LED Characteristic
-    onButton.addEventListener('click', () => writeOnCharacteristic(1));
-    offButton.addEventListener('click', () => writeOnCharacteristic(0));
-
-    // Check if BLE is available in your Browser
-    function isWebBluetoothEnabled() {
-        if (!navigator.bluetooth) {
-            console.log('Web Bluetooth API is not available in this browser!');
-            bleStateContainer.innerHTML = "Web Bluetooth API is not available in this browser/device!";
-            return false
-        }
-        console.log('Web Bluetooth API supported in this browser.');
-        return true
-    }
-
-    // Connect to BLE Device and Enable Notifications
-    function connectToDevice(){
-        console.log('Initializing Bluetooth...');
-        navigator.bluetooth.requestDevice({
-            filters: [{name: deviceName}],
-            optionalServices: [bleService]
-        })
-        .then(device => {
-            console.log('Device Selected:', device.name);
-            bleStateContainer.innerHTML = 'Connected to device ' + device.name;
-            bleStateContainer.style.color = "#24af37";
-            device.addEventListener('gattservicedisconnected', onDisconnected);
-            return device.gatt.connect();
-        })
-        .then(gattServer =>{
-            bleServer = gattServer;
-            console.log("Connected to GATT Server");
-            return bleServer.getPrimaryService(bleService);
-        })
-        .then(service => {
-            bleServiceFound = service;
-            console.log("Service discovered:", service.uuid);
-            return service.getCharacteristic(sensorCharacteristic);
-        })
-        .then(characteristic => {
-            console.log("Characteristic discovered:", characteristic.uuid);
-            sensorCharacteristicFound = characteristic;
-            characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-            characteristic.startNotifications();
-            console.log("Notifications Started.");
-            return characteristic.readValue();
-        })
-        .then(value => {
-            console.log("Read value: ", value);
-            const decodedValue = new TextDecoder().decode(value);
-            console.log("Decoded value: ", decodedValue);
-            retrievedValue.innerHTML = decodedValue;            
-        })
-        .catch(error => {
-            console.log('Error: ', error);
-        })
-    }
-
-    function onDisconnected(event){
-        console.log('Device Disconnected:', event.target.device.name);
-        bleStateContainer.innerHTML = "Device disconnected";
-        bleStateContainer.style.color = "#d13a30";
-
-        connectToDevice();
-    }
-
-    function handleCharacteristicChange(event){
-        const newValueReceived = new TextDecoder().decode(event.target.value);
-        console.log("Characteristic value changed: ", newValueReceived);
-        retrievedValue.innerHTML = newValueReceived;
-        timestampContainer.innerHTML = getDateTime();
-    }
-
-    function writeOnCharacteristic(value){
-        if (bleServer && bleServer.connected) {
-            bleServiceFound.getCharacteristic(ledCharacteristic)
-            .then(characteristic => {
-                console.log("Found the LED characteristic: ", characteristic.uuid);
-                const data = new Uint8Array([value]);
-                return characteristic.writeValue(data);
-            })
-            .then(() => {
-                latestValueSent.innerHTML = value;
-                console.log("Value written to LEDcharacteristic:", value);
-            })
-            .catch(error => {
-                console.error("Error writing to the LED characteristic: ", error);
-            });
-        } else {
-            console.error ("Bluetooth is not connected. Cannot write to characteristic.")
-            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
-        }
-    }
-
-    function disconnectDevice() {
-        console.log("Disconnect Device.");
-        if (bleServer && bleServer.connected) {
-            if (sensorCharacteristicFound) {
-                sensorCharacteristicFound.stopNotifications()
-                    .then(() => {
-                        console.log("Notifications Stopped");
-                        return bleServer.disconnect();
-                    })
-                    .then(() => {
-                        console.log("Device Disconnected");
-                        bleStateContainer.innerHTML = "Device Disconnected";
-                        bleStateContainer.style.color = "#d13a30";
-
-                    })
-                    .catch(error => {
-                        console.log("An error occurred:", error);
-                    });
-            } else {
-                console.log("No characteristic found to disconnect.");
+        const chartConfig =
+        {
+            type                : 'line',
+            data                : chartData,
+            options             :
+            {
+                responsive      : true,
+                legend          : {display: false, position: 'top'},
+                title           :
+                {
+                    display     : false,
+                    fontSize    : 16,
+                    text        : "Temperature",
+                },
+                scales:
+                {
+                    xAxes:
+                    {
+                        display : true,
+                        title   : { display: false, text: 'Time'},
+                        ticks   : { stepSize: 50 /* forces step size to be 50 units */ }
+                    },
+                    yAxes:
+                    {
+                        display : true,
+                        min     : -35,
+                        max     :  75,
+                        position: 'left',
+                        ticks   : { stepSize: 15 /* forces step size to be 15 units */ },
+                        title   : { display: true, text: '℃'},
+                        type    : 'linear'
+              //    },
+              //    y1:
+              //    {
+              //        display : true,
+              //        // grid line settings
+              //        grid    : { drawOnChartArea: false, /* only want the grid lines for one axis to show up*/ },
+              //        min     :   0,
+              //        max     : 100,
+              //        position: 'right',
+              //        ticks   : { stepSize: 15 /* forces step size to be 15 units */ },
+              //        title   : { display: true, text: '℃'},
+              //        type    : 'linear'
+                    }
+                }
             }
-        } else {
-            // Throw an error if Bluetooth is not connected
-            console.error("Bluetooth is not connected.");
-            window.alert("Bluetooth is not connected.")
+        };
+        const chartSnsrData             = new Chart(document.getElementById('Chart'), chartConfig);
+
+
+        // =============================================================================================================
+        //  Color Constants
+        // =============================================================================================================
+        const COLOR_POOR                = "#d13a30";
+        const COLOR_COLD                = "#4dbeee";
+        const COLOR_WARN                = "#fdb120";
+        const COLOR_GOOD                = "#77ac30";
+
+        // =============================================================================================================
+        //  Constants of Sensor Frame
+        // =============================================================================================================
+        const FRAME_HEADER_0            = 0x55;
+        const FRAME_HEADER_1            = 0x0F;
+        const FRAME_HEADER_LEN          = 2;
+        const FRAME_PAYLOAD_LEN         = 10;
+        const FRAME_CRC32_LEN           = 4;
+        const FRAME_LEN                 = FRAME_HEADER_LEN + FRAME_PAYLOAD_LEN + FRAME_CRC32_LEN;
+        const FRAME_CRC32_POLYNOMIAL    = 0x04C11DB7;
+
+        // =============================================================================================================
+        //  BLE Device Specs
+        // =============================================================================================================
+        const ble =
+        {
+            device              : null,
+            server              : null,
+            characteristic      : null,
+            namePrefix          : 'WLS',
+            sUUID               : '0000ffe0-0000-1000-8000-00805f9b34fb',
+            cUUID               : '0000ffe1-0000-1000-8000-00805f9b34fb',
+            connected           : false,
+            disconnectingByUser : false,            // Flag to indicate whether disconnecting request from the user
+            rxBuffer            : new Uint8Array(0),// Receive buffer for handling packet fragmentation or concatenation of BLE Notify
+            sessionId           : 0,                // Invalidate old callbacks via increments when each connection
+            byteRate            : 0,
+            crcErrCnt           : 0,
+            frameRxCnt          : 0,
+            prevRxBytes         : 0,
+            totalRxBytes        : 0,
+            timer               : null
+        };
+
+        console.clear();
+
+        // =============================================================================================================
+        //                                            BUTTONS EVENT LISTENER
+        // =============================================================================================================
+        // Connect Button (search for BLE Devices only if BLE is available)
+        btnConnect.addEventListener('click', (event) =>
+        {
+            // Check if BLE is available in your Browser
+            if (!navigator.bluetooth)
+            {
+                console.log(`[ WARN ] %cWeb Bluetooth API is not available in this browser!`, "color: yellow;", ...args);
+                lblBleState.innerHTML = "Web Bluetooth API is not available in this browser/device!";
+            }
+            else
+            {
+                console.log("[ INFO ] Web Bluetooth API supported in this browser.");
+                connectToDevice();
+            }
+        });
+
+        // Disconnect Button
+        btnDisConn.addEventListener('click', (event) =>
+        {
+            if (ble.disconnectingByUser)
+            {
+                console.log(`[ WARN ] %cDisconnecting is in progress`, "color: yellow;");
+                return;
+            }
+
+            LOG_INFO(`Disconnecting Device: ${ble.device.name} ...`);
+
+            // Immediately prevent to process data from subsequent Notify
+            ble.disconnectingByUser = true;
+            ble.connected           = false;
+            ble.sessionId++;                             // Expired the current session
+            ble.rxBuffer            = new Uint8Array(0); // Clear the receive buffer to avoid using stale data on next connection
+
+            lblBleState.innerHTML   = `Disconnecting ${ble.device.name} ...`;
+            lblBleState.style.color = "#ffd800";
+
+            // Remove the callback of Notify to prevent it from being triggered later
+            ble.characteristic.removeEventListener("characteristicvaluechanged", processNotifyCharacteristic);
+
+            ble.characteristic.stopNotifications()
+                .then(() =>
+                {
+                    console.log("[ INFO ] Un-subscribed Notify");
+                    return ble.server.disconnect();
+                })
+                .then(() =>
+                {
+                    if ( ble.device.gatt &&  ble.device.gatt.connected)
+                    {
+                        device.gatt.disconnect();
+                        console.log("[ INFO ] GATT Disconnected");
+                    }
+
+                    finalizeBleDisconnect(true);
+                })
+                .catch(error =>
+                {
+                    console.log(`[ ERRO ] %cStopped Notifications: ${error}`, "color: red;");
+                    finalizeBleDisconnect(true);
+                });
+
+            // Worst Case handling:
+            // In certain situations, 'gattservicedisconnected' event may not trigger as expected
+            setTimeout(() =>
+            {
+                if (ble.disconnectingByUser) finalizeBleDisconnect(true);
+            }, 500);
+        });
+
+        // =============================================================================================================
+        //                                            OPERATIONAL FUNCTIONS
+        // =============================================================================================================
+        // Connect to BLE Device and Enable Notifications
+        function connectToDevice()
+        {
+            //https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#filters
+            console.log("[ INFO ] Connecting to Bluetooth Device ...");
+            navigator.bluetooth.requestDevice({
+              //filters: [{name: deviceName}],
+                filters:
+                [
+                //{name      : ble.devName},
+                  {namePrefix: ble.namePrefix},
+                  {services: [0xffe0, 0xfff0]},
+                  {services: ["0000ffe0-0000-1000-8000-00805f9b34fb"]},
+                  {services: ["0000fff0-0000-1000-8000-00805f9b34fb"]},
+                ],
+                optionalServices: [ble.sUUID]
+            })
+            .then(device =>
+            {
+                ble.device = device;
+                console.log("[ INFO ] Device Selected:", ble.device.name);
+                lblBleState.innerHTML   = `Connecting ${ble.device.name} ...`;
+                lblBleState.style.color = "#ffd800";
+              //device.addEventListener('gattservicedisconnected', onDisconnected);
+                device.addEventListener('gattserverdisconnected', (event) =>
+                {
+                    console.log(`[ WARN ] %cGATT Server OFFLINE: ${ble.device.name}`, "color: yellow;");
+                    finalizeBleDisconnect(ble.disconnectedByUser);
+                });
+                return device.gatt.connect();
+            })
+            .then(server =>
+            {
+                ble.server = server;
+                console.log("[ INFO ] Connected to GATT Server");
+                return ble.server.getPrimaryService(ble.sUUID);
+            })
+            .then(service =>
+            {
+                bleService = service;
+                console.log("[ INFO ] Service:", service.uuid);
+                return service.getCharacteristic(ble.cUUID);
+            })
+            .then(characteristic =>
+            {
+                console.log("[ INFO ] Characteristic:", characteristic.uuid);
+                if (!characteristic.properties.notify) throw new Error('Notify is not available!');
+
+                ble.characteristic      = characteristic;
+                ble.connected           = true;
+                ble.crcErrCnt           = 0;
+                ble.disconnectingByUser = false;
+                ble.byteRate            = 0;
+                ble.frameRxCnt          = 0;
+                ble.prevRxBytes         = 0;
+                ble.totalRxBytes        = 0;
+                ble.rxBuffer            = new Uint8Array(0);
+                ble.sessionId++; // Generate new ID for each connection
+                ble.timer               = setInterval(() =>
+                {
+                    ble.byteRate    = (ble.totalRxBytes - ble.prevRxBytes) / 1000.0;
+                    ble.prevRxBytes = ble.totalRxBytes;
+                }, 1000);;
+
+                characteristic.addEventListener('characteristicvaluechanged', processNotifyCharacteristic);
+                characteristic.startNotifications();
+                console.log("[ INFO ] Subscribed Notify");
+
+                btnDisConn.disabled     = false;
+                btnConnect.disabled     = true;
+                lblBleState.innerHTML   = ble.device.name;
+                lblBleState.style.color = "#24af37";
+
+                chartSnsrData.data.datasets.forEach(dataset => {dataset.data.pop();});
+                chartSnsrData.update();
+
+              //return characteristic.readValue();
+            })
+            .catch(error =>
+            {
+                console.log(`[ ERRO ] %c${error}`, "color: red;");
+            })
         }
-    }
 
-    function getDateTime() {
-        var currentdate = new Date();
-        var day = ("00" + currentdate.getDate()).slice(-2); // Convert day to string and slice
-        var month = ("00" + (currentdate.getMonth() + 1)).slice(-2);
-        var year = currentdate.getFullYear();
-        var hours = ("00" + currentdate.getHours()).slice(-2);
-        var minutes = ("00" + currentdate.getMinutes()).slice(-2);
-        var seconds = ("00" + currentdate.getSeconds()).slice(-2);
-        
-        var datetime = day + "/" + month + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
-        return datetime;
-    }
+        function processNotifyCharacteristic(event)
+        {
+            const currentSessionId = ble.sessionId;
+
+            // Ignore this notify since disconnecting request by user
+            if (isBleSessionExpired(currentSessionId)) { console.log(`[ WARN ] %cIGNORED NOTIFY : disconnectingByUser!`, "color: yellow;"); return; }
+
+            // Receive bytes from Notification
+            const recvData    = event.target.value;
+            if (!recvData || 0 === recvData.byteLength){ console.log(`[ WARN ] %cIGNORED NOTIFY : emptyRecvData!`, "color: yellow;");  return; }
+
+            ble.totalRxBytes += recvData.byteLength;
+          //console.log(`[ INFO ] recvData(offs, len) = (${recvData.byteOffset}, ${recvData.byteLength})`);
+
+            const recvBytes  = new Uint8Array(recvData.buffer, recvData.byteOffset, recvData.byteLength);
+            if (isBleSessionExpired(currentSessionId)) { console.log(`[ WARN ] %cIGNORED NOTIFY : sessionExpired!`, "color: yellow;"); return; }
+          //console.log("[ INFO ] Received Bytes:", bytesToHex(recvBytes));
+
+            // Append bytes to 'ble.rxBuffer'
+            const concatResult  = new Uint8Array(ble.rxBuffer.length + recvBytes.length);
+            concatResult.set(ble.rxBuffer, 0);
+            concatResult.set(recvBytes, ble.rxBuffer.length);
+            ble.rxBuffer        = concatResult;
+
+            // Parse byte-stream
+            while (ble.rxBuffer.length >= FRAME_LEN && !isBleSessionExpired(currentSessionId))
+            {
+                // Searching Frame Header
+                for (let i = 0; i <= ble.rxBuffer.length - FRAME_HEADER_LEN; i++)
+                {
+                    // Frame Header is mismatched
+                    if ( ble.rxBuffer[i] != FRAME_HEADER_0 || ble.rxBuffer[i + 1] != FRAME_HEADER_1) continue;
+
+                    ble.rxBuffer = ble.rxBuffer.slice(i);       // Discard data before valid frame header
+                    if (ble.rxBuffer.length < FRAME_LEN) return;// Waiting for next package if insufficient data for one complete frame
+
+                    const frame = ble.rxBuffer.slice(0, FRAME_LEN);
+                    if (!checkCrc32(FRAME_CRC32_POLYNOMIAL, new Uint32Array(frame.buffer)))
+                    {
+                        ble.rxBuffer = ble.rxBuffer.slice(2);   // Discard this frame header to re-searching valid frame header
+                        console.log(`[ WARN ] %cCRC32 FAILED! => [ ${bytesToHex(frame)} ]`, "color: yellow;");
+                        ble.crcErrCnt++;
+                        continue;
+                    }
+
+                    ble.frameRxCnt++;
+                    if ( isBleSessionExpired(currentSessionId) ) { console.log(`[ WARN ] %cIGNORED NOTIFY : sessionExpired!`, "color: yellow;"); return; }
+
+                    ble.rxBuffer = ble.rxBuffer.slice(FRAME_LEN); // Remove the processed frame
+
+                    refreshElements(frame.slice(FRAME_HEADER_LEN, FRAME_HEADER_LEN + FRAME_PAYLOAD_LEN));
+                }
+
+                // If Frame header isn't found, reserve the last FRAME_HEADER_0 to avoid header bytes being split across packets
+                ble.rxBuffer = (FRAME_HEADER_0 === ble.rxBuffer[ble.rxBuffer.length - 1])
+                                ? ble.rxBuffer.slice(ble.rxBuffer.length - 1) : new Uint8Array(0);
+            }
+        }
+
+        function isBleSessionExpired(sessionId)
+        {
+            return (sessionId !== ble.sessionId || ble.disconnectingByUser || !ble.connected);
+        }
+
+        function finalizeBleDisconnect(disconnectedByUser = false)
+        {
+            if (ble.characteristic)   ble.characteristic.removeEventListener("characteristicvaluechanged",
+                                                                             processNotifyCharacteristic);
+            if (!ble.timer)         { clearInterval(ble.timer); ble.timer = null; }
+
+            ble.connected           = false;
+            ble.disconnectingByUser = false;
+          //ble.device              = null;
+            ble.characteristic      = null;
+            ble.rxBuffer            = new Uint8Array(0);// Flush received buffer
+            ble.byteRate            = 0;
+            ble.crcErrCnt           = 0;
+            ble.frameRxCnt          = 0;
+            ble.prevRxBytes         = 0;
+            ble.totalRxBytes        = 0;
+            ble.sessionId++;                            // Force session expired
+
+            // Update UI Elements
+            btnDisConn.disabled     = true;
+            btnConnect.disabled     = false;
+
+            if (disconnectedByUser)
+            {
+                lblBleState.innerHTML   = "DISCONNECTED";
+                lblBleState.style.color = "#d13a30";
+                console.log("[ INFO ] Finalized BLE disconnect");
+            }
+            else
+            {
+                lblBleState.innerHTML   = `${ble.device.name} OFFLINE`;
+                lblBleState.style.color = "#d13a30";
+                console.log(`[ WARN ] %cBLE DEVICE OFFLINE!`, "color: yellow;");
+            }
+            ble.device              = null;
+            console.log("[ INFO ] Device Disconnected");
+        }
+
+        function refreshElements(payload)
+        {
+            const sensorData        = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
+            let   battP             = (sensorData.getUint16(0, true) >>> 6) * 1e-1;
+            let   ambT              =  sensorData.getUint16(2, true)        * 1e-1;
+            let   mcuT              =  sensorData.getUint16(4, true)        * 1e-1;
+            let   splyU             =  sensorData.getUint16(6, true)        * 1e-3;
+            let   battU             =  sensorData.getUint16(8, true)        * 1e-3;
+          //console.log("[ INFO ] Payload:", bytesToHex(payload));
+
+            lblAmbT.innerHTML       = `( ${(1.8*ambT+32).toFixed(1)} ℉ )`;
+            lblBattU.innerHTML      = `( ${battU.toFixed(2)} V )`;
+            lblByteRate.innerHTML   = ` ${ble.byteRate.toFixed(2)} KB/s `;
+            lblCrcErrCnt.innerHTML  = `${ble.crcErrCnt}`;
+            lblFrameRxCnt.innerHTML = `${ble.frameRxCnt}`;
+            lblLostRate.innerHTML   = `${(100.0*ble.crcErrCnt/(ble.frameRxCnt+ble.crcErrCnt)).toFixed(2)}%`;
+            lblMcuT.innerHTML       = `( ${mcuT.toFixed(1)} ℃ )`;
+            lblTotalRxCnt.innerHTML = `${ble.frameRxCnt+ble.crcErrCnt}`;
+            tbxAmbT.innerHTML       = `${ambT.toFixed(1)} ℃`;
+            tbxAmbT.style.color     = (ambT > 40) ? COLOR_POOR : ((ambT < 18) ? COLOR_COLD : ((ambT > 29) ? COLOR_WARN : COLOR_GOOD));
+            tbxBattP.innerHTML      = `${battP.toFixed(1)} %`;
+            tbxBattP.style.color    = (battP > 20) ? COLOR_GOOD : COLOR_POOR;
+            tbxSplyU.innerHTML      = `${splyU.toFixed(2)} V`;
+            tbxSplyU.style.color    = (splyU > 2.9) ? COLOR_POOR : ((splyU < 2.7) ? COLOR_WARN : COLOR_GOOD);
+            lblTimestamp.innerHTML  = getDateTime();
 
 
-</script>
+            xValues.push(ble.frameRxCnt);
+            yValues.push(ambT);
+            chartSnsrData.update();
+        }
 
+        // =============================================================================================================
+        //                                               HELPER FUNCTIONS
+        // =============================================================================================================
+        function bytesToHex(bytes)
+        {
+            return Array.from(bytes).map(byte => byte.toString(16).padStart(2, "0").toUpperCase()).join(" ");
+        }
+
+        function checkCrc32(poly, dwords)
+        {
+        //  https://www.lddgo.net/en/encrypt/crc
+            let crc = 0xFFFFFFFF ^ dwords[0];
+
+            for (let i = 0; i < dwords.length; crc ^= dwords[++i])
+            {
+                for (let j = 0; j < 32; j++) crc = (crc&0x80000000) ? poly ^ (crc << 1) : crc << 1; ;
+            }
+
+            return (0 === crc);
+        }
+
+        function getDateTime()
+        {
+            var currentdate = new Date();
+            var day     = ("00" + currentdate.getDate()).slice(-2); // Convert day to string and slice
+            var month   = ("00" + (currentdate.getMonth() + 1)).slice(-2);
+            var year    = currentdate.getFullYear();
+            var hours   = ("00" + currentdate.getHours()).slice(-2);
+            var minutes = ("00" + currentdate.getMinutes()).slice(-2);
+            var seconds = ("00" + currentdate.getSeconds()).slice(-2);
+
+            var datetime = year + "/" + month + "/" + day + " at " + hours + ":" + minutes + ":" + seconds;
+
+            return datetime;
+        }
+
+        function LOG_INFO(msg, ...args)
+        {
+            console.log(`[ INFO ] ${msg}`, ...args);
+        }
+
+        function LOG_WARN(msg, ...args)
+        {
+            console.log(`[ WARN ] %c${msg}`, "color: yellow;", ...args);
+        }
+
+        function LOG_ERROR(msg, ...args)
+        {
+            console.log(`[ ERRO ] %c${msg}`, "color: red;", ...args);
+        }
+
+    </script>
 </html>
