@@ -20,29 +20,58 @@
         </div>
         <div class="content">
             <div class="card-grid">
-                <div class="card">
-                    <p>
-                        <button id="btnConnect" class="connectButton"         > Connect to BLE Peripheral</button>
-                        <button id="btnDisConn" class="disconnButton" disabled> Disconnect BLE Peripheral</button>
+                <div class="card button-card" >
+                    <p class="button-grid">
+                        <p>
+                            <button id="btnConnect" class="connectButton"> 
+                                Connect to BLE Peripheral
+                            </button>
+                            <button id="btnDisConn" class="disconnButton" disabled> 
+                                Disconnect BLE Peripheral
+                            </button>
+                        </p>
+                        <p class="gray-label">
+                            BLE state: 
+                            <strong>
+                                <span id="lblBleState" style="color:#d13a30;">Disconnected</span>
+                            </strong>
+                        </p>
                     </p>
-                    <p class="gray-label">BLE state: <strong><span id="lblBleState" style="color:#d13a30;">Disconnected</span></strong></p>
                 </div>
             </div>
             <div class="card-grid">
                 <div class="card">
                     <h2>Ambient</h2>
-                    <p class="text-box"><strong><span id="tbxAmbT">--.- ℃</span></strong></p>
-                    <p class="gray-label"><span id="lblAmbT"></span></p>
+                    <p class="text-box">
+                        <strong>
+                            <span id="tbxAmbT">--.- ℃</span>
+                        </strong>
+                    </p>
+                    <p class="gray-label">
+                        <span id="lblAmbT"></span>
+                    </p>
                 </div>
                 <div class="card">
                     <h2>Sensor</h2>
-                    <p class="text-box"><strong><span id="tbxSplyU">-.-- V</span></strong></p>
-                    <p class="gray-label"><span id="lblMcuT"></span></p>
+                    <p class="text-box">
+                        <strong>
+                            <span id="tbxSplyU">-.-- V</span>
+                        </strong>
+                    </p>
+                    <p class="gray-label">
+                        <span id="lblMcuT"></span>
+                    </p>
                 </div>
                 <div class="card">
                     <h2>Battery</h2>
-                    <p class="text-box"><strong><span id="tbxBattP">--.- %</span></strong></p>
-                    <p class="gray-label"><span id="lblBattU"></span></p>
+                    <p class="text-box">
+                        <strong>
+                            <span id="tbxBattP">--.- %</span>
+                        </strong>
+                    </p>
+                    <p class="gray-label">
+                        <span id="lblBattU"></span>
+                    </p>
                 </div>
             </div>
             <p class="gray-label">Recv /  Total:
@@ -51,13 +80,24 @@
                 <strong><span id="lblCrcErrCnt" style="color:#d13a30;">0</span></strong>
                (<strong><span id="lblLostRate" style="color:#d13a30;">-.--%</span></strong>)
             </p>
-            <canvas id="Chart" style="width:80%;max-width:device-width"></canvas>
-            <p class="gray-label">Last received: <span id="lblTimestamp"></span></p>
+            <div class="card-grid">
+                <canvas id="Chart" style="width:80%;max-width:device-width"></canvas>
+            </div>
+            <p class="gray-label">
+                Last received: 
+                <span id="lblTimestamp"></span>
+            </p>
         </div>
         <div class="footer">
-            <p><a href="https://googlechrome.github.io/samples/web-bluetooth/">Web Bluetooth Samples</a></p>
-            <p>Refer to <a href="https://RandomNerdTutorials.com/esp32-web-bluetooth/">Full Tutorials</a> created by <a href="https://randomnerdtutorials.com/">RandomNerdTutorials</a></p>
-            <p><a href="https://www.chartjs.org">Chart.js</a> (<a href="https://github.com/chartjs/Chart.js/releases/">GitHub</a>, MIT licensed) built files are available on <a href="https://cdnjs.com/libraries/Chart.js">CDNJS</a></p>
+            <p>
+                <a href="https://googlechrome.github.io/samples/web-bluetooth/" target="_blank">Web Bluetooth Samples</a>
+            </p>
+            <p>
+                Refer to <a href="https://RandomNerdTutorials.com/esp32-web-bluetooth/" target="_blank">Full Tutorials</a> created by <a href="https://randomnerdtutorials.com/" target="_blank">RandomNerdTutorials</a>
+            </p>
+            <p>
+                <a href="https://www.chartjs.org" target="_blank">Chart.js</a> (<a href="https://github.com/chartjs/Chart.js/releases/" target="_blank">GitHub</a>, MIT licensed) built files are available on <a href="https://cdnjs.com/libraries/Chart.js" target="_blank">CDNJS</a>
+            </p>
         </div>
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/chart.js"></script>-->
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.js"></script>-->
