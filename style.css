@@ -25,105 +25,194 @@ body
     padding                     : clamp(12px, 4vw, 50px); /*50px;*/
     overflow-x                  : auto;     /* Horizontal scrolling instead of wrapping cards on very narrow screen */
 }
-.card-grid
-{
-    display                     : grid;
-    gap                         : clamp(8px, 2vw, 2rem);
-    grid-gap                    : 2rem;
-/*  grid-template-columns       : repeat(auto-fit, minmax(200px, 1fr));  */
-    grid-template-columns       : repeat(3, minmax(0, 1fr));/* Always keep three columns */
-    margin                      : 0 auto 30px auto;
-    margin-bottom               : 30px;
-    max-width                   : 800px;
-    width                       : 100%;     /* Normally takes up the full available width */
-}
+
+/* Generic 'card' Appearance */
 .card
 {
     background-color            : white;
     box-shadow                  : 2px 2px 12px 1px rgba(140,140,140,.5);
     min-width                   : 0;
-    padding                     : 20px 10px;
+  /*padding                     : 20px 10px;*/
     text-align                  : center;
 }
+/* Generic 'grid' Appearance */
+.card-grid
+{
+    display                     : grid;
+    gap                         : clamp(8px, 2vw, 2rem);
+    grid-gap                    : 2rem;
+    margin                      : 0 auto 30px auto;
+    max-width                   : 800px;
+    width                       : 100%;     /* Normally takes up the full available width */
+}
+
+/* Button 'card' Appearance */
 .button-card
 {
+    align-items                 : center;
+    display                     : flex;
+    flex-direction              : column;
     grid-column                 : 1 / -1;
+    justify-content             : center;
+    padding                     : 34px 20px 28px 20px;
 }
 .button-grid
 {
-    display                     : grid;
-    grid-template-columns       : repeat(2, minmax(0, 1fr));
-    gap                         : 12px;     /*1rem;*/
-    margin                      : 0 auto 15px auto;
-    max-width                   : 600px;
+    /* Ensure the total width matches the width of three data cards below.
+       If it's too narrow, .content will provide horizontal scrolling. */
+    grid-template-columns       : repeat(3, minmax(0, 1fr));
+    min-width                   : 600px;
+}
+.button-card .button-layout
+{
+    align-items                 : center;
+    column-gap                  : 24px;/* 18px; 20px; 24px; */  /* gap between buttons */
+    display                     : flex;
+    flex-direction              : row;
+    grid-template-columns       : repeat(2, 140px);             /* Fixed in horizontal layout. */
+    gap                         : clamp(32px, 6vw, 64px);
+    justify-content             : center;
+    margin                      : 0 0 22px 0;
+    margin-bottom               : 18px;                         /* margin between button and BLE state */
+    padding                     : 0;
+    width                       : auto;
+    max-width                   : none;
+}
+.ble-state
+{
+    color                       : gray;
+    font-size                   : 14px;
+    margin                      : 0;
+}
+
+
+/* Data 'card' Appearance */
+.data-grid
+{
+/*  grid-template-columns       : repeat(auto-fit, minmax(200px, 1fr));  */
+    grid-template-columns       : repeat(3, minmax(0, 1fr)); /* Always keep three columns */
+    min-width                   : 600px;                     /* Ensure horizontal layout of three data cards
+                                                                when medium width screen (eg. 790px~940px) */
+}
+.data-card
+{
+    /* Preferably keep a 3:2 aspect ratio with central content horizontally and vertically */
+    align-items                 : center;
+    aspect-ratio                : 3 / 2;
+    display                     : flex;
+    flex-direction              : column;
+    justify-content             : center;
+    padding                     : clamp(8px, 1.8vw, 20px);
+}
+
+/* Button 'card' Font Style */
+.button-card .gray-label
+{
+    color                       : gray;
+    font-size                   : clamp(12px, 1.6vw, 14px);
+    margin                      : 10px 0 0 0;
+}
+
+/* Data 'card' Font Style */
+.data-card h2
+{
+    font-size                   : clamp(16px, 2.5vw, 28px);
+    margin                      : 0 0 12px 0;
+}
+.data-card .text-box
+{
+    font-size                   : clamp(18px, 3vw, 32px);
+    margin                      : 0;
+}
+.data-card .gray-label
+{
+    color                       : gray;
+    font-size                   : clamp(11px, 1.5vw, 14px);
+    margin                      : 10px 0 0 0;
 }
 /* 窄螢幕優化 */
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 640px)
+{
     .content
     {
-        padding                 : 12px 8px;/*20px 10px;*/
-    }
-
-    .card-grid
-    {
-        grid-template-columns   : repeat(3, minmax(90px, 1fr));
-        gap                     : 8px;/*0.75rem;*/
-        max-width               : 540px; /*100%;*/
-      /*overflow-x              : auto;*/ /* Force horizontal layout even if on very narrow screen (eg. 320px or less) */
+        padding                 : 12px 8px;
     }
 
     .card
     {
-        padding                 : 12px 6px;/*15px 5px;*/
+        padding                 : 12px 6px;
     }
 
-    .card h2
+    .button-grid,
+    .data-grid
     {
-        font-size               : 16px;/*18px;*/
-        margin                  : 8px 0;
+        min-width               : 540px;
     }
-
-    .card .text-box
+    .card-grid
     {
-        font-size               : 20px;/*1.5rem;*/
-    }
-
-    .card .gray-label
-    {
-        font-size               : 12px;/*0.75rem;*/
+        gap                     : 8px;
     }
 
     .button-card
     {
         grid-column             : 1 / -1;
+        padding                 : 28px 12px 24px 12px;
     }
-    .button-grid
+    .button-card .button-layout
     {
-        grid-template-columns   : repeat(2, minmax(0, 1fr));
-        gap                     : 8px;
-        max-width               : 100%;
-      /*overflow-x              : auto;*/ /* Force horizontal layout even if on very narrow screen (eg. 320px or less) */
+        gap                     : 28px;
+        grid-template-columns   : repeat(2, 120px);
+        margin-bottom           : 16px;
+    }
+
+    .data-card
+    {
+        padding                 : 8px;
+    }
+    .data-card h2
+    {
+        font-size               : 16px;
+        margin-bottom           : 8px;
+    }
+    .data-card .text-box
+    {
+        font-size               : 20px;
+        padding                 : 0 10px;
+    }
+    .data-card .gray-label
+    {
+        font-size               : 11px;
     }
 
     button
     {
-/*      font-size               : 12px;*/
-        padding                 : 8px 6px;
+        height                  : 44px;
+        font-size               : 14px;
+        padding                 : 6px 10px;
+    }
+
+    .ble-state
+    {
+        font-size               : 13px;
     }
 }
 
 button
 {
+    aspect-ratio                : 3 / 1; /* Preferably keep a 3:1 aspect ratio */
     border                      : none;
     border-radius               : 4px;
     color                       : white;
     cursor                      : pointer;
+    font-size                   : 16px;
+    font-weight                 : 600;
+    height                      : 48px;
     margin                      : 8px 0;
     min-width                   : 0;
-    padding                     : 14px 20px;
+    padding                     : 8px 14px;
     overflow-wrap               : anywhere; /* Allow text wrap inside the button */
     white-space                 : normal;
-/*  width                       : 100%;  */
+  /*width                       : 100%;*/
 }
 /*
 button:disabled, button[disabled]
