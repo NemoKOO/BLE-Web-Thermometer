@@ -23,40 +23,27 @@
                 <div class="card button-card" >
                     <p class="button-grid">
                         <p>
-                            <button id="btnConnect" class="connectButton"> 
-                                Connect to BLE Peripheral
-                            </button>
-                            <button id="btnDisConn" class="disconnButton" disabled> 
-                                Disconnect BLE Peripheral
-                            </button>
+                            <button id="btnConnect" class="connectButton">Connect</button>
+                            <button id="btnDisConn" class="disconnButton" disabled>Disconnect</button>
                         </p>
                         <p class="gray-label">
-                            BLE state: 
-                            <strong>
-                                <span id="lblBleState" style="color:#d13a30;">Disconnected</span>
-                            </strong>
+                            BLE state: <strong><span id="lblBleState" style="color:#d13a30;">Disconnected</span></strong>
                         </p>
                     </p>
                 </div>
             </div>
-            <div class="card-grid">
+            <div class="card-grid data-card">
                 <div class="card">
                     <h2>Ambient</h2>
                     <p class="text-box">
-                        <strong>
-                            <span id="tbxAmbT">--.- ℃</span>
-                        </strong>
+                        <strong><span id="tbxAmbT">--.- ℃</span></strong>
                     </p>
-                    <p class="gray-label">
-                        <span id="lblAmbT"></span>
-                    </p>
+                    <p class="gray-label"><span id="lblAmbT"></span></p>
                 </div>
                 <div class="card">
                     <h2>Sensor</h2>
                     <p class="text-box">
-                        <strong>
-                            <span id="tbxSplyU">-.-- V</span>
-                        </strong>
+                        <strong><span id="tbxSplyU">-.-- V</span></strong>
                     </p>
                     <p class="gray-label">
                         <span id="lblMcuT"></span>
@@ -65,9 +52,7 @@
                 <div class="card">
                     <h2>Battery</h2>
                     <p class="text-box">
-                        <strong>
-                            <span id="tbxBattP">--.- %</span>
-                        </strong>
+                        <strong><span id="tbxBattP">--.- %</span></strong>
                     </p>
                     <p class="gray-label">
                         <span id="lblBattU"></span>
@@ -84,8 +69,7 @@
                 <canvas id="Chart" style="width:80%;max-width:device-width"></canvas>
             </div>
             <p class="gray-label">
-                Last received: 
-                <span id="lblTimestamp"></span>
+                Last received: <span id="lblTimestamp"></span>
             </p>
         </div>
         <div class="footer">
