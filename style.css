@@ -3,53 +3,57 @@ html
     display                     : inline-block;
     font-family                 : Arial, Helvetica, sans-serif;
     text-align                  : center;
-}   
-    
-h1  
-{   
+}
+
+h1
+{
     color                       : white;
     font-size                   : 1.8rem;
-}   
-.topnav 
-{   
+}
+.topnav
+{
     background-color            : #0A1128;
     overflow                    : hidden;
-}   
-    
-body    
-{   
+}
+
+body
+{
     margin                      : 0;
-}   
-.content    
-{   
-    padding                     : 50px;
-}   
-.card-grid  
-{   
+}
+.content
+{
+    padding                     : clamp(12px, 4vw, 50px); /*50px;*/
+    overflow-x                  : auto;     /* Horizontal scrolling instead of wrapping cards on very narrow screen */
+}
+.card-grid
+{
     display                     : grid;
+    gap                         : clamp(8px, 2vw, 2rem);
     grid-gap                    : 2rem;
-    grid-template-columns       : repeat(auto-fit, minmax(200px, 1fr));
+/*  grid-template-columns       : repeat(auto-fit, minmax(200px, 1fr));  */
+    grid-template-columns       : repeat(3, minmax(0, 1fr));/* Always keep three columns */
     margin                      : 0 auto 30px auto;
     margin-bottom               : 30px;
     max-width                   : 800px;
-}   
-.card   
-{   
+    width                       : 100%;     /* Normally takes up the full available width */
+}
+.card
+{
     background-color            : white;
     box-shadow                  : 2px 2px 12px 1px rgba(140,140,140,.5);
     min-width                   : 0;
     padding                     : 20px 10px;
     text-align                  : center;
-}   
-.button-card   
-{   
+}
+.button-card
+{
     grid-column                 : 1 / -1;
-}   
-.button-grid    
-{   
+}
+.button-grid
+{
     display                     : grid;
     grid-template-columns       : repeat(2, minmax(0, 1fr));
-    gap                         : 1rem;
+    gap                         : 12px;     /*1rem;*/
     margin                      : 0 auto 15px auto;
     max-width                   : 600px;
 }
@@ -57,47 +61,54 @@ body
 @media screen and (max-width: 640px) {
     .content
     {
-        padding                 : 15px 8px;/*20px 10px;*/
+        padding                 : 12px 8px;/*20px 10px;*/
     }
 
     .card-grid
     {
         grid-template-columns   : repeat(3, minmax(90px, 1fr));
         gap                     : 8px;/*0.75rem;*/
-        max-width               : 100%;
-      /*overflow-x              : auto;*/ /* 強制橫向排列 即使螢幕寬度非常小（如 320px） */
-    }   
-    
-    .card   
-    {   
-        padding                 : 12px 4px;/*15px 5px;*/
-    }   
-    
-    .card h2    
-    {   
+        max-width               : 540px; /*100%;*/
+      /*overflow-x              : auto;*/ /* Force horizontal layout even if on very narrow screen (eg. 320px or less) */
+    }
+
+    .card
+    {
+        padding                 : 12px 6px;/*15px 5px;*/
+    }
+
+    .card h2
+    {
         font-size               : 16px;/*18px;*/
         margin                  : 8px 0;
-    }   
-    
-    .card .text-box 
-    {   
+    }
+
+    .card .text-box
+    {
         font-size               : 20px;/*1.5rem;*/
-    }   
-    
-    .card .gray-label   
-    {   
+    }
+
+    .card .gray-label
+    {
         font-size               : 12px;/*0.75rem;*/
     }
-    
+
     .button-card
     {
         grid-column             : 1 / -1;
-    }   
-    .button-grid    
-    {   
+    }
+    .button-grid
+    {
         grid-template-columns   : repeat(2, minmax(0, 1fr));
         gap                     : 8px;
-      /*overflow-x              : auto;*/ /* 強制橫向排列 即使螢幕寬度非常小（如 320px） */
+        max-width               : 100%;
+      /*overflow-x              : auto;*/ /* Force horizontal layout even if on very narrow screen (eg. 320px or less) */
+    }
+
+    button
+    {
+/*      font-size               : 12px;*/
+        padding                 : 8px 6px;
     }
 }
 
@@ -108,7 +119,11 @@ button
     color                       : white;
     cursor                      : pointer;
     margin                      : 8px 0;
+    min-width                   : 0;
     padding                     : 14px 20px;
+    overflow-wrap               : anywhere; /* Allow text wrap inside the button */
+    white-space                 : normal;
+/*  width                       : 100%;  */
 }
 /*
 button:disabled, button[disabled]
@@ -122,43 +137,43 @@ button:disabled, button[disabled]
 button:hover
 {
     opacity                     : 0.6;
-}   
-*/  
-.connectButton  
-{   
+}
+*/
+.connectButton
+{
     background-color            : #24af37;
-}   
-.connectButton:disabled {   
+}
+.connectButton:disabled {
     background-color            : #ccc;
     color                       : #666;
     cursor                      : not-allowed;
   /*pointer-events              : none;*/ /* For fuller disabled mouse interactions, incl. hover, active, and click events*/
-}   
-.connectButton:hover    
-{   
+}
+.connectButton:hover
+{
     opacity                     : 0.75;
-}   
-.disconnButton  
-{   
+}
+.disconnButton
+{
     background-color            : #d13a30;
-}   
-.disconnButton:disabled {   
+}
+.disconnButton:disabled {
     background-color            : #ccc;
     color                       : #666;
     cursor                      : not-allowed;
   /*pointer-events              : none;*/ /* For fuller disabled mouse interactions, incl. hover, active, and click events*/
-}   
-.disconnButton:hover    
-{   
+}
+.disconnButton:hover
+{
     opacity                     : 0.75;
-}   
-.gray-label 
-{   
+}
+.gray-label
+{
     color                       : #bebebe;
     font-size                   : 1rem;
-}   
-    
-.text-box   
-{   
+}
+
+.text-box
+{
     font-size                   : 1.8rem;
 }
