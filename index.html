@@ -59,16 +59,43 @@
                     </p>
                 </div>
             </div>
-            <p class="gray-label">Recv /  Total:
-                <strong><span id="lblFrameRxCnt" style="color:#77ac30;">0</span></strong> / <strong><span id="lblTotalRxCnt">0</span></strong>
-               (<strong><span id="lblByteRate" style="color:#77ac30;">-.-- KB/s</span></strong>), Lost:
-                <strong><span id="lblCrcErrCnt" style="color:#d13a30;">0</span></strong>
-               (<strong><span id="lblLostRate" style="color:#d13a30;">-.--%</span></strong>)
+            <p class="gray-label stats-line">
+                <span class="stats-group stats-rx">
+                    <span class="stats-label">Recv / Total: </span>
+                    <strong>
+                        <span id="lblFrameRxCnt" class="stat-num stat-green">0</span>
+                    </strong>
+                    <span class="stats-separator">/</span>
+                    <strong>
+                        <span id="lblTotalRxCnt" class="stat-num stat-total">0</span>
+                    </strong>
+                    <span class="stats-rate-wrap">
+                        (
+                        <strong>
+                            <span id="lblByteRate" class="stat-rate stat-green">-.-- KB/s</span>
+                        </strong>
+                        )
+                    </span>
+                </span>
+
+                <span class="stats-group stats-lost">
+                    <span class="stats-label">Lost: </span>
+                    <strong>
+                        <span id="lblCrcErrCnt" class="stat-num stat-red">0</span>
+                    </strong>
+                    <span class="stats-rate-wrap">
+                        (
+                        <strong>
+                            <span id="lblLostRate" class="stat-lost-rate stat-red">-.--%</span>
+                        </strong>
+                        )
+                    </span>
+                </span>
             </p>
-            <div class="card-grid">
+            <div class="card-grid chart-grid">
                 <canvas id="Chart" style="width:80%;max-width:device-width"></canvas>
             </div>
-            <p class="gray-label">
+            <p class="gray-label stats-line">
                 Last received: <span id="lblTimestamp"></span>
             </p>
         </div>

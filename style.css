@@ -16,97 +16,96 @@ h1
     overflow                    : hidden;
 }
 
-*{
+*
+{
     box-sizing                  : border-box;
+}
+
+html,
+body
+{
+    margin                      : 0;
+    width                       : 100%;
+    overflow-x                  : hidden;
 }
 
 body
 {
-    margin                      : 0;
-}
-.content
-{
-    padding                     : clamp(12px, 4vw, 50px); /*50px;*/
-    overflow-x                  : auto;     /* Horizontal scrolling instead of wrapping cards on very narrow screen */
+    background-color            : #fff;
 }
 
-/* Generic 'card' Appearance */
+.content
+{
+    padding                     : clamp(8px, 3vw, 50px);
+    overflow-x                  : hidden;     /* Disabled horizontal scrolling on screen of mobile phone */
+    width                       : 100%;
+}
+
+/* ============================= */
+/*         Generic card          */
+/* ============================= */
 .card
 {
     background-color            : white;
     box-shadow                  : 2px 2px 12px 1px rgba(140,140,140,.5);
     min-width                   : 0;
-  /*padding                     : 20px 10px;*/
     text-align                  : center;
 }
-/* Generic 'grid' Appearance */
+/* ============================= */
+/*         Generic grid          */
+/* ============================= */
 .card-grid
 {
     display                     : grid;
-    gap                         : clamp(8px, 2vw, 2rem);
-    grid-gap                    : 2rem;
+    gap                         : clamp(10px, 2vw, 24px);
+  /*grid-gap                    : 2rem;*/ /* 只保留 gap，否則後面的 grid-gap 可能覆蓋 gap。*/
     margin                      : 0 auto 30px auto;
     max-width                   : 800px;
     width                       : 100%;     /* Normally takes up the full available width */
 }
 
-/* Button 'card' Appearance */
+/* ============================= */
+/*          Button card          */
+/* ============================= */
+.button-grid
+{
+    /* Ensure the total width matches the width of three data cards below.
+       If it's too narrow, .content will provide horizontal scrolling. */
+    grid-template-columns       : 1fr;  /*repeat(3, minmax(0, 1fr));*/
+    min-width                   : 0;    /* Ensure button card to follow the width of screen */
+    max-width                   : 800px;
+    width                       : 100%;
+}
 .button-card
 {
     align-items                 : center;
     display                     : flex;
     flex-direction              : column;
-    grid-column                 : 1 / -1;
+  /*grid-column                 : 1 / -1;*/
     justify-content             : center;
-    padding                     : 34px 20px 28px 20px;
+    min-width                   : 0;
+    padding                     : clamp(22px, 5vw, 34px) clamp(12px, 4vw, 20px)
+                                  clamp(20px, 4vw, 28px) clamp(12px, 4vw, 20px);
+    width                       : 100%;
 }
-.button-grid
-{
-    /* Ensure the total width matches the width of three data cards below.
-       If it's too narrow, .content will provide horizontal scrolling. */
-    grid-template-columns       : repeat(3, minmax(0, 1fr));
-    min-width                   : 600px;
-}
+
 .button-card .button-layout
 {
     align-items                 : center;
-    column-gap                  : 24px;/* 18px; 20px; 24px; */  /* gap between buttons */
     display                     : flex;
     flex-direction              : row;
-    grid-template-columns       : repeat(2, 140px);             /* Fixed in horizontal layout. */
-    gap                         : clamp(32px, 6vw, 64px);
+    grid-template-columns       : repeat(2, minmax(0, 1fr));/* 兩個 button 始終橫向排列。
+                                                               每個 button 平分可用寬度。*/
+    gap                         : clamp(24px, 6vw, 56px);   /* 間距隨螢幕自適應。
+                                                               桌面端間距更舒展，手機端自動縮小*/
     justify-content             : center;
-    margin                      : 0 0 22px 0;
-    margin-bottom               : 18px;                         /* margin between button and BLE state */
+    margin                      : 0 0 18px 0;
+    min-width                   : 0;
     padding                     : 0;
-    width                       : auto;
-    max-width                   : none;
-}
-.ble-state
-{
-    color                       : gray;
-    font-size                   : 14px;
-    margin                      : 0;
-}
-
-
-/* Data 'card' Appearance */
-.data-grid
-{
-/*  grid-template-columns       : repeat(auto-fit, minmax(200px, 1fr));  */
-    grid-template-columns       : repeat(3, minmax(0, 1fr)); /* Always keep three columns */
-    min-width                   : 600px;                     /* Ensure horizontal layout of three data cards
-                                                                when medium width screen (eg. 790px~940px) */
-}
-.data-card
-{
-    /* Preferably keep a 3:2 aspect ratio with central content horizontally and vertically */
-    align-items                 : center;
-    aspect-ratio                : 3 / 2;
-    display                     : flex;
-    flex-direction              : column;
-    justify-content             : center;
-    padding                     : clamp(8px, 1.8vw, 20px);
+    width                       : min(100%, 420px);         /* 控制 button 區域最大寬度。
+                                                               在桌面上不要拉得太寬，在手機上自動佔滿可用寬度。*/
+    max-width                   : 420px;
+    width                       : 100%;
 }
 
 /* Button 'card' Font Style */
@@ -116,88 +115,298 @@ body
     font-size                   : clamp(12px, 1.6vw, 14px);
     margin                      : 10px 0 0 0;
 }
+.ble-state
+{
+    color                       : gray;
+    font-size                   : clamp(12px, 3.2vw, 14px);
+    margin                      : 0;
+}
+
+
+/* ============================= */
+/*           Data card           */
+/* ============================= */
+.data-grid
+{
+/*  grid-template-columns       : repeat(auto-fit, minmax(200px, 1fr));  */
+    grid-template-columns       : repeat(3, minmax(0, 1fr)); /* Always keep three columns */
+    min-width                   : 0;
+    max-width                   : 800px;
+    width                       : 100%;
+}
+.data-card
+{
+    /* Preferably keep a 3:2 aspect ratio with central content horizontally and vertically */
+    align-items                 : center;
+    aspect-ratio                : 3 / 2;
+    display                     : flex;
+    flex-direction              : column;
+    justify-content             : center;
+    min-width                   : 0;
+    padding                     : clamp(6px, 2vw, 20px);
+    overflow                    : hidden;
+    width                       : 100%;
+}
 
 /* Data 'card' Font Style */
 .data-card h2
 {
-    font-size                   : clamp(16px, 2.5vw, 28px);
-    margin                      : 0 0 12px 0;
+    font-size                   : clamp(13px, 4vw, 28px); /* 手機端縮小字體，避免撐爆 card。 */
+    margin                      : 0 0 clamp(4px, 1.5vw, 12px) 0;
+    white-space                 : nowrap;
 }
 .data-card .text-box
 {
-    font-size                   : clamp(18px, 3vw, 32px);
+    font-size                   : clamp(16px, 5vw, 32px);
     margin                      : 0;
+    white-space                 : nowrap;
 }
 .data-card .gray-label
 {
     color                       : gray;
-    font-size                   : clamp(11px, 1.5vw, 14px);
-    margin                      : 10px 0 0 0;
+    font-size                   : clamp(10px, 1.8vw, 14px);
+    margin                      : clamp(4px, 1.5vw, 10px) 0 0 0;
+    white-space                 : nowrap;
 }
+
+/* ============================= */
+/*            Chart      */
+/* ============================= */
+.chart-grid
+{
+    grid-template-columns       : 1fr;
+    min-width                   : 0;
+    max-width                   : 800px;
+    width                       : 100%;
+}
+
+#Chart
+{
+    display                     : block;
+    height                      : clamp(220px, 55vw, 360px) !important;     /* 可以根據需求調整圖表高度。*/
+    max-width                   : 100%;
+    width                       : 100% !important;
+}
+
+/* ============================= */
+/*          Stats line           */
+/* ============================= */
+.stats-line
+{
+    align-items                 : center;
+    color                       : gray;
+    column-gap                  : 10px;
+    row-gap                     : 4px;
+    display                     : flex;
+    flex-wrap                   : wrap;
+    font-size                   : clamp(14px, 2.1vw, 20px);
+    justify-content             : center;
+    margin                      : 0 auto 24px auto;
+    margin-left                 : auto;
+    margin-right                : auto;
+    max-width                   : 800px;
+    line-height                 : 1.35;
+    text-align                  : center;
+    overflow-wrap               : anywhere;/* 手機上允許統計文字換行，不要撐出橫向滾動。*/
+    white-space                 : normal;
+    width                       : 100%;
+}
+
+/* 每一組統計信息 */
+.stats-group
+{
+    align-items                 : baseline;
+    display                     : inline-flex;
+    justify-content             : center;
+    gap                         : 4px;
+    white-space                 : nowrap; /* 禁止組內內容隨意斷開。如果空間不足，整組換行。*/
+}
+
+/* 數字使用等寬數字，避免數值變化時跳動 */
+.stat-num,
+.stat-rate,
+.stat-lost-rate
+{
+    display                     : inline-block;
+    font-variant-numeric        : tabular-nums;
+    font-feature-settings       : "tnum";
+}
+
+/* Recv / Lost 這類計數值預留空間 */
+.stat-num
+{
+    min-width                   : 3ch;
+    text-align                  : right;
+}
+
+/* Total 數值通常可能更大，稍微多留一點 */
+.stat-total
+{
+    min-width                   : 4ch;
+    text-align                  : right;
+}
+
+/* 速率預留字符空間，例如 12.34 KB/s */
+.stat-rate
+{
+    min-width                   : 9ch;
+    text-align                  : right;
+}
+
+/* 丟包率預留字符空間，例如 100.0% */
+.stat-lost-rate
+{
+    min-width                   : 6ch;
+    text-align                  : right;
+}
+
+.stat-green
+{
+    color: #77ac30;
+}
+
+.stat-red
+{
+    color: #d13a30;
+}
+
 /* 窄螢幕優化 */
 @media screen and (max-width: 640px)
 {
     .content
     {
-        padding                 : 12px 8px;
+        padding                 : 8px;
+    }
+    .card-grid
+    {
+        gap                     : 10px;
+        margin-bottom           : 24px;
     }
 
-    .card
+    .button-card
     {
-        padding                 : 12px 6px;
+        padding                 : 28px 12px 24px 12px;
+    }
+    .button-card .button-layout
+    {
+        gap                     : clamp(18px, 7vw, 36px);
+        margin-bottom           : 18px;
+        width                   : min(100%, 360px);
+    }
+    .button-card .button-layout button
+    {
+        font-size               : 14px;
+        min-height              : 40px;
+        max-height              : 46px;
+        padding                 : 0 10px;
     }
 
-    .button-grid,
-    .data-grid
+    .data-card
     {
-        min-width               : 540px;
+        padding                 : 8px 4px;
     }
+    .data-card h2
+    {
+        font-size               : clamp(12px, 4vw, 16px);
+        margin-bottom           : 6px;
+    }
+    .data-card .gray-label
+    {
+        font-size               : 10px;
+    }
+    .data-card .text-box
+    {
+        font-size               : clamp(16px, 5vw, 20px);
+    }
+
+    .stats-line
+    {
+        column-gap              : 8px;
+        font-size               : clamp(12px, 3.4vw, 16px);
+        margin-bottom           : 20px;
+        padding                 : 0 4px;
+        row-gap                 : 4px;
+    }
+    .stats-group
+    {
+        gap                     : 3px;
+    }
+
+    .stat-num
+    {
+        min-width               : 3ch;
+    }
+
+    .stat-total
+    {
+        min-width               : 4ch;
+    }
+
+    .stat-rate
+    {
+        min-width               : 8.5ch;
+    }
+
+    .stat-lost-rate
+    {
+        min-width               : 5.5ch;
+    }
+}
+
+@media screen and (max-width: 380px)
+{
     .card-grid
     {
         gap                     : 8px;
     }
 
-    .button-card
-    {
-        grid-column             : 1 / -1;
-        padding                 : 28px 12px 24px 12px;
-    }
     .button-card .button-layout
     {
-        gap                     : 28px;
-        grid-template-columns   : repeat(2, 120px);
-        margin-bottom           : 16px;
+        gap                     : 16px;
+    }
+
+    .button-card .button-layout button
+    {
+        font-size               : 13px;
+        height                  : 40px;
+        padding                 : 0;
     }
 
     .data-card
     {
-        padding                 : 8px;
+        padding                 : 6px 3px;
     }
+
     .data-card h2
     {
-        font-size               : 16px;
-        margin-bottom           : 8px;
+        font-size               : 12px;
+        margin-bottom           : 4px;
     }
+
     .data-card .text-box
     {
-        font-size               : 20px;
-        padding                 : 0 10px;
-    }
-    .data-card .gray-label
-    {
-        font-size               : 11px;
+        font-size               : 16px;
     }
 
-    button
+    .stats-line
     {
-        height                  : 44px;
-        font-size               : 14px;
-        padding                 : 6px 10px;
+        align-items             : center;
+        font-size               : 12px;
+        flex-direction          : column;
+        line-height             : 1.4;
+        row-gap                 : 3px;
     }
-
-    .ble-state
+    .stats-group
     {
-        font-size               : 13px;
+        justify-content         : center;
+    }
+    .stat-rate
+    {
+        min-width               : 8ch;
+    }
+    .stat-lost-rate
+    {
+        min-width               : 5ch;
     }
 }
 
@@ -205,18 +414,20 @@ button
 {
     aspect-ratio                : 3 / 1; /* Preferably keep a 3:1 aspect ratio */
     border                      : none;
-    border-radius               : 4px;
+    border-radius               : 5px;
     color                       : white;
     cursor                      : pointer;
-    font-size                   : 16px;
+    flex                        : 1 1 0; /* 兩個 button 在 flex 裡各自佔據可用空間。flex-basis 控制基準寬度。*/
+    font-size                   : clamp(14px, 3.8vw, 18px);
     font-weight                 : 600;
-    height                      : 48px;
-    margin                      : 8px 0;
-    min-width                   : 0;
-    padding                     : 8px 14px;
-    overflow-wrap               : anywhere; /* Allow text wrap inside the button */
-    white-space                 : normal;
-  /*width                       : 100%;*/
+    min-height                  : 40px;
+    margin                      : 0;
+    max-height                  : 52px;
+    overflow                    : hidden;
+    padding                     : 0px 12px;
+    text-overflow               : ellipsis;
+    white-space                 : nowrap;
+    width                       : auto;
 }
 /*
 button:disabled, button[disabled]
